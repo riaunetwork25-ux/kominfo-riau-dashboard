@@ -5,6 +5,8 @@ Dashboard sederhana untuk monitoring banyak router Kominfo Riau dengan integrasi
 ## 🚀 Fitur
 
 - **Central Dashboard**: Monitoring semua router Kominfo Riau dari satu tempat
+- **Authentication System**: Login page untuk keamanan akses
+- **Session Management**: Session dengan timeout otomatis
 - **Graph Viewing**: Lihat traffic graph langsung dari dashboard
 - **Google Sheets Integration**: Sinkronisasi data ke Google Sheets
 - **Local Storage**: Data tersimpan di browser (tidak perlu database)
@@ -28,20 +30,20 @@ cd C:\Users\USER\CascadeProjects\mikrotik-dashboard
 
 ### 2. Buka Dashboard
 
-Buka file `index.html` langsung di browser atau gunakan web server lokal:
+Buka file `login.html` di browser (bukan index.html):
 
 ```bash
-# Jika menggunakan Python
+# Buka langsung di browser
+# file:///C:/Users/USER/CascadeProjects/mikrotik-dashboard/login.html
+
+# Atau gunakan web server lokal:
 python -m http.server 8000
-
-# Jika menggunakan Node.js (http-server)
-npx http-server
-
-# Jika menggunakan PHP
-php -S localhost:8000
+# Kemudian buka http://localhost:8000/login.html
 ```
 
-Kemudian buka `http://localhost:8000` di browser.
+**Default Login:**
+- Username: `admin`
+- Password: `kominfo123`
 
 ### 3. Konfigurasi Awal
 

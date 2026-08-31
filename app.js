@@ -5,6 +5,12 @@ let syncStatus = false;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication first
+    checkSession();
+
+    // Setup session timeout checker
+    setupSessionTimeout();
+
     loadRouters();
     renderRouters();
     checkSyncStatus();

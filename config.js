@@ -1,5 +1,12 @@
 // MikroTik Router Dashboard - Configuration
 
+// Authentication Configuration
+// Ganti username dan password sesuai kebutuhan
+const AUTH_CREDENTIALS = {
+    username: 'admin',
+    password: 'kominfo123'
+};
+
 // Google Sheets Configuration
 // Untuk setup Google Sheets API:
 // 1. Buat project di Google Cloud Console (https://console.cloud.google.com)
