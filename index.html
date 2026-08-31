@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Router Kominfo Riau Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .add-router-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .add-router-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .router-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .router-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .router-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .router-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .router-header h3 {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .router-header .status {
+            font-size: 12px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+
+        .router-body {
+            padding: 15px;
+        }
+
+        .router-info {
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .router-info p {
+            margin: 5px 0;
+        }
+
+        .router-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .router-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f56565;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sync-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .sync-status.synced {
+            background: #48bb78;
+            color: white;
+        }
+
+        .sync-status.unsynced {
+            background: #f56565;
+            color: white;
+        }
+
+        .sync-status.syncing {
+            background: #ed8936;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ Monitoring Router Kominfo Riau Dashboard</h1>
+            <p>Central monitoring untuk semua router Kominfo Riau</p>
+            <div class="controls">
+                <button class="btn-primary" onclick="toggleAddForm()">+ Tambah Router</button>
+                <button class="btn-secondary" onclick="syncToGoogleSheets()">🔄 Sync ke Google Sheets</button>
+                <button class="btn-secondary" onclick="exportToCSV()">📥 Export CSV</button>
+                <button class="btn-danger" onclick="clearAllData()">🗑️ Hapus Semua Data</button>
+                <span id="syncStatus" class="sync-status unsynced">Belum Sync</span>
+            </div>
+        </div>
+
+        <div class="add-router-form" id="addRouterForm">
+            <h3>Tambah Router Baru</h3>
+            <div class="form-group">
+                <label>Nama Router:</label>
+                <input type="text" id="routerName" placeholder="Contoh: Router Kominfo Pekanbaru">
+            </div>
+            <div class="form-group">
+                <label>IP Address:</label>
+                <input type="text" id="routerIP" placeholder="Contoh: 10.121.121.142">
+            </div>
+            <div class="form-group">
+                <label>Port (opsional, default: 80):</label>
+                <input type="number" id="routerPort" placeholder="Contoh: 8080" min="1" max="65535">
+            </div>
+            <div class="form-group">
+                <label>Interface Graph (opsional):</label>
+                <input type="text" id="routerInterface" placeholder="Contoh: ether1-InternetKOMINFO">
+            </div>
+            <div class="form-group">
+                <label>Lokasi:</label>
+                <input type="text" id="routerLocation" placeholder="Contoh: Kantor Kominfo Riau">
+            </div>
+            <button class="btn-primary" onclick="addRouter()">Simpan Router</button>
+            <button class="btn-danger" onclick="toggleAddForm()">Batal</button>
+        </div>
+
+        <div class="router-grid" id="routerGrid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Memuat data router...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
