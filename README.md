@@ -72,7 +72,11 @@ const GOOGLE_SHEETS_CONFIG = {
 
 ### Melihat Graph
 
-- **Graph Interface**: Klik **"📊 Graph Interface"** untuk melihat graph interface tertentu di tab baru
+- **Graph Interface**: Klik **"📊 Graph Interface"** untuk memilih interface dari daftar yang tersedia
+  - Akan muncul modal dengan daftar interface umum (ether1, ether2, wlan1, bridge, dll)
+  - Interface yang sudah terkonfigurasi akan muncul di atas dengan icon ⭐
+  - Bisa juga input nama interface manual jika tidak ada di daftar
+  - Pilih interface dan klik "Lihat Graph" untuk membuka graph di tab baru
 - **Semua Interface**: Klik **"🔗 Semua Interface"** untuk melihat semua interface router di tab baru
 - **Copy Link**: Klik **"📋 Copy Link"** untuk menyalin link graph ke clipboard
 

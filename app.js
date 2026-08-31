@@ -71,7 +71,7 @@ function renderRouters() {
                     <p><strong>Ditambahkan:</strong> ${formatDate(router.addedAt)}</p>
                 </div>
                 <div class="router-actions">
-                    <button class="btn-view" onclick="viewGraph('${router.id}')">📊 Graph Interface</button>
+                    <button class="btn-view" onclick="showInterfaceSelector('${router.id}')">📊 Graph Interface</button>
                     <button class="btn-view" onclick="viewAllInterfaces('${router.id}')">🔗 Semua Interface</button>
                     <button class="btn-view" onclick="copyGraphLink('${router.id}')">📋 Copy Link</button>
                     <button class="btn-delete" onclick="deleteRouter('${router.id}')">🗑️ Hapus</button>
@@ -150,7 +150,130 @@ function deleteRouter(id) {
     }
 }
 
-// View graph for specific interface
+// Show interface selector modal
+let selectedRouterId = null;
+let selectedInterface = null;
+
+function showInterfaceSelector(id) {
+    const router = routers.find(r => r.id === id);
+    if (!router) return;
+
+    selectedRouterId = id;
+    selectedInterface = null;
+
+    const modal = document.getElementById('interfaceModal');
+    const modalBody = document.getElementById('interfaceModalBody');
+
+    // Common interface names (can be customized)
+    const commonInterfaces = [
+        { name: 'ether1-InternetKOMINFO', icon: '🌐', description: 'Internet KOMINFO' },
+        { name: 'ether1', icon: '🔌', description: 'Ethernet Port 1' },
+        { name: 'ether2', icon: '🔌', description: 'Ethernet Port 2' },
+        { name: 'ether3', icon: '🔌', description: 'Ethernet Port 3' },
+        { name: 'ether4', icon: '🔌', description: 'Ethernet Port 4' },
+        { name: 'ether5', icon: '🔌', description: 'Ethernet Port 5' },
+        { name: 'wlan1', icon: '📶', description: 'Wireless LAN 1' },
+        { name: 'wlan2', icon: '📶', description: 'Wireless LAN 2' },
+        { name: 'bridge-local', icon: '🌉', description: 'Local Bridge' },
+        { name: 'bridge-internet', icon: '🌉', description: 'Internet Bridge' },
+        { name: 'pppoe-out1', icon: '🔗', description: 'PPPoE Output 1' },
+        { name: 'pppoe-out2', icon: '🔗', description: 'PPPoE Output 2' }
+    ];
+
+    // Add router's configured interface if exists
+    if (router.interface) {
+        const existingInterface = commonInterfaces.find(i => i.name === router.interface);
+        if (!existingInterface) {
+            commonInterfaces.unshift({
+                name: router.interface,
+                icon: '⭐',
+                description: 'Interface Terkonfigurasi'
+            });
+        }
+    }
+
+    // Build interface list
+    let interfaceListHtml = '<div class="interface-list">';
+    commonInterfaces.forEach(iface => {
+        interfaceListHtml += `
+            <div class="interface-item" onclick="selectInterface('${iface.name}', this)">
+                <span class="icon">${iface.icon}</span>
+                <span class="name">${escapeHtml(iface.name)}</span>
+                <span class="description">${escapeHtml(iface.description)}</span>
+            </div>
+        `;
+    });
+    interfaceListHtml += '</div>';
+
+    // Add custom interface input
+    interfaceListHtml += `
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee;">
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Atau masukkan nama interface lain:</label>
+                <input type="text" id="customInterface" placeholder="Contoh: ether6" 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                       oninput="selectedInterface = this.value; clearInterfaceSelection();">
+            </div>
+        </div>
+    `;
+
+    modalBody.innerHTML = interfaceListHtml;
+    modal.classList.add('show');
+}
+
+// Select interface from list
+function selectInterface(interfaceName, element) {
+    selectedInterface = interfaceName;
+
+    // Clear custom input
+    document.getElementById('customInterface').value = '';
+
+    // Remove selected class from all items
+    document.querySelectorAll('.interface-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+
+    // Add selected class to clicked item
+    element.classList.add('selected');
+}
+
+// Clear interface selection
+function clearInterfaceSelection() {
+    document.querySelectorAll('.interface-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+}
+
+// Close interface modal
+function closeInterfaceModal() {
+    const modal = document.getElementById('interfaceModal');
+    modal.classList.remove('show');
+    selectedRouterId = null;
+    selectedInterface = null;
+}
+
+// Confirm interface selection and open graph
+function confirmInterfaceSelection() {
+    if (!selectedInterface) {
+        alert('Silakan pilih interface terlebih dahulu!');
+        return;
+    }
+
+    const router = routers.find(r => r.id === selectedRouterId);
+    if (!router) return;
+
+    const port = router.port ? `:${router.port}` : '';
+    const encodedInterface = encodeURIComponent(selectedInterface);
+    const graphUrl = `http://${router.ip}${port}/graphs/iface/${encodedInterface}/`;
+
+    // Open graph in new tab
+    window.open(graphUrl, '_blank');
+
+    // Close modal
+    closeInterfaceModal();
+}
+
+// View graph for specific interface (legacy function, kept for compatibility)
 function viewGraph(id) {
     const router = routers.find(r => r.id === id);
     if (!router) return;
