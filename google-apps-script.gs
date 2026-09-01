@@ -4,7 +4,7 @@
 // Konfigurasi
 const CONFIG = {
   SHEET_NAME: 'RouterMonitoring',
-  HEADERS: ['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Lokasi', 'Ditambahkan', 'Link Graph']
+  HEADERS: ['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Daftar Interface', 'Lokasi', 'Ditambahkan', 'Link Graph']
 };
 
 // Handler untuk GET request - mengambil data dari sheet
@@ -128,6 +128,7 @@ function addRouter(routerData) {
       routerData.ip,
       routerData.port || '80',
       routerData.interface || '',
+      routerData.interfaces ? routerData.interfaces.join(', ') : '',
       routerData.location || '',
       new Date().toLocaleString('id-ID'),
       `http://${routerData.ip}${routerData.port ? ':' + routerData.port : ''}/graphs/`
@@ -188,9 +189,10 @@ function getAllRouters() {
       ip: row[2],
       port: row[3],
       interface: row[4],
-      location: row[5],
-      addedAt: row[6],
-      link: row[7]
+      interfaces: row[5] ? row[5].split(', ').map(i => i.trim()) : [],
+      location: row[6],
+      addedAt: row[7],
+      link: row[8]
     }));
     
     return { status: 'success', routers: routers };
@@ -215,7 +217,7 @@ function setup() {
   
   // Add sample data
   const sampleData = [
-    [Date.now(), 'Router Sample', '10.121.121.142', '80', 'ether1-InternetKOMINFO', 'Sample Location', new Date().toLocaleString('id-ID'), 'http://10.121.121.142/graphs/']
+    [Date.now(), 'Router Sample', '10.121.121.142', '80', 'ether1-InternetKOMINFO', 'ether1-InternetKOMINFO, ether2, wlan1, bridge-local', 'Sample Location', new Date().toLocaleString('id-ID'), 'http://10.121.121.142/graphs/']
   ];
   
   const sheet = spreadsheet.getSheetByName(CONFIG.SHEET_NAME);

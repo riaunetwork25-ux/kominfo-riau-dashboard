@@ -66,17 +66,29 @@ const GOOGLE_SHEETS_CONFIG = {
    - **Nama Router**: Nama identifikasi router
    - **IP Address**: IP address router MikroTik
    - **Port**: Port HTTP (opsional, default: 80)
-   - **Interface**: Nama interface (opsional, untuk graph spesifik)
+   - **Interface**: Nama interface default (opsional, untuk graph spesifik)
+   - **Daftar Interface**: Daftar interface yang tersedia di router (opsional, pisahkan dengan koma)
    - **Lokasi**: Lokasi fisik router (opsional)
 3. Klik **"Simpan Router"**
 
 ### Melihat Graph
 
-- **Graph Interface**: Klik **"📊 Graph Interface"** untuk memilih interface dari daftar yang tersedia
-  - Akan muncul modal dengan daftar interface umum (ether1, ether2, wlan1, bridge, dll)
-  - Interface yang sudah terkonfigurasi akan muncul di atas dengan icon ⭐
-  - Bisa juga input nama interface manual jika tidak ada di daftar
-  - Pilih interface dan klik "Lihat Graph" untuk membuka graph di tab baru
+- **Graph Interface**: Klik **"📊 Graph Interface"** untuk memilih tipe graph
+  - **Traffic Graphing**: Pilih interface untuk melihat graph traffic (upload/download)
+    - Jika router memiliki daftar interface kustom, akan muncul interface dari router tersebut
+    - Jika tidak ada daftar kustom, akan muncul interface umum: ether1-5, wlan1-2, bridge, pppoe-out, dll
+    - Interface yang sudah terkonfigurasi muncul di atas dengan icon ⭐
+    - Bisa input nama interface manual jika tidak ada di daftar
+  - **System Resource Graphing**: Pilih resource untuk melihat graph sistem
+    - CPU Usage 🔥
+    - Memory Usage 💾
+    - Disk Usage 💿
+    - Temperature 🌡️
+    - Voltage ⚡
+    - Fan Speed 💨
+    - Uptime ⏱️
+    - Board Temperature 🌡️
+  - Pilih interface/resource dan klik "Lihat Graph" untuk membuka di tab baru
 - **Semua Interface**: Klik **"🔗 Semua Interface"** untuk melihat semua interface router di tab baru
 - **Copy Link**: Klik **"📋 Copy Link"** untuk menyalin link graph ke clipboard
 
@@ -134,6 +146,12 @@ Pastikan web server enabled untuk akses graph:
 # Enable web server
 /ip service set www enabled=yes port=80
 ```
+
+**Panduan lengkap setup MikroTik:** Lihat file [MIKROTIK_SETUP.md](MIKROTIK_SETUP.md) untuk:
+- Enable graphing untuk interface dan system resource
+- Setup permission dan authentication
+- Firewall configuration
+- Troubleshooting common issues
 
 ## 📁 Struktur Project
 

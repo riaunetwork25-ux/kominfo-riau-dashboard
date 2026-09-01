@@ -131,7 +131,8 @@ Sheet akan memiliki kolom:
 | Nama Router | Nama router | Router Kantor Pusat |
 | IP Address | IP address router | 10.121.121.142 |
 | Port | Port HTTP (default: 80) | 80 atau 8080 |
-| Interface | Nama interface (opsional) | ether1-InternetKOMINFO |
+| Interface | Nama interface default (opsional) | ether1-InternetKOMINFO |
+| Daftar Interface | Daftar interface router (pisahkan koma) | ether1, ether2, wlan1, bridge-local |
 | Lokasi | Lokasi fisik router | Kantor Pusat |
 | Ditambahkan | Tanggal ditambahkan | 31/08/2026, 11:30:00 |
 | Link Graph | Link ke graph router | http://10.121.121.142/graphs/ |

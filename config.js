@@ -58,7 +58,7 @@ function doPost(e) {
 // Google Apps Script Configuration (Alternative Method)
 const GOOGLE_APPS_SCRIPT_CONFIG = {
     // Deploy script sebagai Web App dan copy URL di sini
-    scriptUrl: 'https://script.google.com/macros/s/AKfycbyo99py46h53_7QV620sohWOZhKa8Eq0PtTZMGYbptjLQWLuyk-jSm-jKVQ4yHLWfD4/exec',     
+    scriptUrl: 'https://script.google.com/macros/s/AKfycbwFXDmamreCzg-9dqHuQJh9iuJ-zxbhs1oRDAOyk2AsYdJTj-bkbhoEWvlaPdU1nksD/exec',     
     // Nama sheet di Google Sheets
     sheetName: 'RouterMonitoring'
 };

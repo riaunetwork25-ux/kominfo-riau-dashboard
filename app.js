@@ -29,6 +29,7 @@ function loadRouters() {
             ip: '10.121.121.142',
             port: '',
             interface: 'ether1-InternetKOMINFO',
+            interfaces: ['ether1-InternetKOMINFO', 'ether2', 'wlan1', 'bridge-local'],
             location: 'Kantor Kominfo Riau',
             addedAt: new Date().toISOString()
         }];
@@ -97,6 +98,7 @@ function addRouter() {
     const ip = document.getElementById('routerIP').value.trim();
     const port = document.getElementById('routerPort').value.trim();
     const interface = document.getElementById('routerInterface').value.trim();
+    const interfaces = document.getElementById('routerInterfaces').value.trim();
     const location = document.getElementById('routerLocation').value.trim();
 
     if (!name || !ip) {
@@ -122,6 +124,7 @@ function addRouter() {
         ip: ip,
         port: port || '',
         interface: interface || '',
+        interfaces: interfaces ? interfaces.split(',').map(i => i.trim()) : [],
         location: location || '',
         addedAt: new Date().toISOString()
     };
@@ -136,6 +139,7 @@ function addRouter() {
     document.getElementById('routerIP').value = '';
     document.getElementById('routerPort').value = '';
     document.getElementById('routerInterface').value = '';
+    document.getElementById('routerInterfaces').value = '';
     document.getElementById('routerLocation').value = '';
 
     alert('Router berhasil ditambahkan!');
@@ -152,6 +156,7 @@ function deleteRouter(id) {
 
 // Show interface selector modal
 let selectedRouterId = null;
+let selectedGraphType = null; // 'traffic' or 'resource'
 let selectedInterface = null;
 
 function showInterfaceSelector(id) {
@@ -159,32 +164,92 @@ function showInterfaceSelector(id) {
     if (!router) return;
 
     selectedRouterId = id;
+    selectedGraphType = null;
     selectedInterface = null;
 
     const modal = document.getElementById('interfaceModal');
     const modalBody = document.getElementById('interfaceModalBody');
 
-    // Common interface names (can be customized)
-    const commonInterfaces = [
-        { name: 'ether1-InternetKOMINFO', icon: '🌐', description: 'Internet KOMINFO' },
-        { name: 'ether1', icon: '🔌', description: 'Ethernet Port 1' },
-        { name: 'ether2', icon: '🔌', description: 'Ethernet Port 2' },
-        { name: 'ether3', icon: '🔌', description: 'Ethernet Port 3' },
-        { name: 'ether4', icon: '🔌', description: 'Ethernet Port 4' },
-        { name: 'ether5', icon: '🔌', description: 'Ethernet Port 5' },
-        { name: 'wlan1', icon: '📶', description: 'Wireless LAN 1' },
-        { name: 'wlan2', icon: '📶', description: 'Wireless LAN 2' },
-        { name: 'bridge-local', icon: '🌉', description: 'Local Bridge' },
-        { name: 'bridge-internet', icon: '🌉', description: 'Internet Bridge' },
-        { name: 'pppoe-out1', icon: '🔗', description: 'PPPoE Output 1' },
-        { name: 'pppoe-out2', icon: '🔗', description: 'PPPoE Output 2' }
-    ];
+    // Show graph type selection first
+    const graphTypeHtml = `
+        <div class="interface-list">
+            <div class="interface-item" onclick="selectGraphType('traffic', this)">
+                <span class="icon">📊</span>
+                <span class="name">Traffic Graphing</span>
+                <span class="description">Graph traffic interface (upload/download)</span>
+            </div>
+            <div class="interface-item" onclick="selectGraphType('resource', this)">
+                <span class="icon">💻</span>
+                <span class="name">System Resource Graphing</span>
+                <span class="description">Graph CPU, memory, disk, temperature</span>
+            </div>
+        </div>
+    `;
 
-    // Add router's configured interface if exists
+    modalBody.innerHTML = graphTypeHtml;
+    modal.classList.add('show');
+}
+
+// Select graph type (traffic or resource)
+function selectGraphType(type, element) {
+    selectedGraphType = type;
+
+    // Remove selected class from all items
+    document.querySelectorAll('.interface-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+
+    // Add selected class to clicked item
+    element.classList.add('selected');
+
+    // Show appropriate interface/resource list
+    if (type === 'traffic') {
+        showTrafficInterfaces();
+    } else if (type === 'resource') {
+        showSystemResources();
+    }
+}
+
+// Show traffic interfaces
+function showTrafficInterfaces() {
+    const router = routers.find(r => r.id === selectedRouterId);
+    if (!router) return;
+
+    const modalBody = document.getElementById('interfaceModalBody');
+
+    // Use router's custom interfaces if provided, otherwise use common interfaces
+    let interfaceList = [];
+
+    if (router.interfaces && router.interfaces.length > 0) {
+        // Use custom interfaces from router configuration
+        interfaceList = router.interfaces.map(iface => ({
+            name: iface,
+            icon: '🔌',
+            description: 'Interface Router'
+        }));
+    } else {
+        // Use common interface names as fallback
+        interfaceList = [
+            { name: 'ether1-InternetKOMINFO', icon: '🌐', description: 'Internet KOMINFO' },
+            { name: 'ether1', icon: '🔌', description: 'Ethernet Port 1' },
+            { name: 'ether2', icon: '🔌', description: 'Ethernet Port 2' },
+            { name: 'ether3', icon: '🔌', description: 'Ethernet Port 3' },
+            { name: 'ether4', icon: '🔌', description: 'Ethernet Port 4' },
+            { name: 'ether5', icon: '🔌', description: 'Ethernet Port 5' },
+            { name: 'wlan1', icon: '📶', description: 'Wireless LAN 1' },
+            { name: 'wlan2', icon: '📶', description: 'Wireless LAN 2' },
+            { name: 'bridge-local', icon: '🌉', description: 'Local Bridge' },
+            { name: 'bridge-internet', icon: '🌉', description: 'Internet Bridge' },
+            { name: 'pppoe-out1', icon: '🔗', description: 'PPPoE Output 1' },
+            { name: 'pppoe-out2', icon: '🔗', description: 'PPPoE Output 2' }
+        ];
+    }
+
+    // Add router's configured interface if exists and not in list
     if (router.interface) {
-        const existingInterface = commonInterfaces.find(i => i.name === router.interface);
+        const existingInterface = interfaceList.find(i => i.name === router.interface);
         if (!existingInterface) {
-            commonInterfaces.unshift({
+            interfaceList.unshift({
                 name: router.interface,
                 icon: '⭐',
                 description: 'Interface Terkonfigurasi'
@@ -193,8 +258,13 @@ function showInterfaceSelector(id) {
     }
 
     // Build interface list
-    let interfaceListHtml = '<div class="interface-list">';
-    commonInterfaces.forEach(iface => {
+    let interfaceListHtml = `
+        <button onclick="showGraphTypeSelection()" style="margin-bottom: 15px; padding: 8px 15px; background: #ddd; border: none; border-radius: 5px; cursor: pointer;">← Kembali</button>
+        <h4 style="margin-bottom: 15px; color: #333;">Pilih Interface untuk Traffic Graph:</h4>
+        <p style="margin-bottom: 15px; color: #666; font-size: 13px;">${router.interfaces && router.interfaces.length > 0 ? 'Interface dari router ini' : 'Interface umum (edit router untuk custom)'}</p>
+        <div class="interface-list">
+    `;
+    interfaceList.forEach(iface => {
         interfaceListHtml += `
             <div class="interface-item" onclick="selectInterface('${iface.name}', this)">
                 <span class="icon">${iface.icon}</span>
@@ -210,7 +280,7 @@ function showInterfaceSelector(id) {
         <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee;">
             <div class="form-group">
                 <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Atau masukkan nama interface lain:</label>
-                <input type="text" id="customInterface" placeholder="Contoh: ether6" 
+                <input type="text" id="customInterface" placeholder="Contoh: ether6"
                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
                        oninput="selectedInterface = this.value; clearInterfaceSelection();">
             </div>
@@ -218,15 +288,79 @@ function showInterfaceSelector(id) {
     `;
 
     modalBody.innerHTML = interfaceListHtml;
-    modal.classList.add('show');
+}
+
+// Show system resources
+function showSystemResources() {
+    const modalBody = document.getElementById('interfaceModalBody');
+
+    // Common system resources
+    const systemResources = [
+        { name: 'cpu', icon: '🔥', description: 'CPU Usage' },
+        { name: 'memory', icon: '💾', description: 'Memory Usage' },
+        { name: 'hdd', icon: '💿', description: 'Disk Usage' },
+        { name: 'temperature', icon: '🌡️', description: 'Temperature' },
+        { name: 'voltage', icon: '⚡', description: 'Voltage' },
+        { name: 'fan-speed', icon: '💨', description: 'Fan Speed' },
+        { name: 'uptime', icon: '⏱️', description: 'Uptime' },
+        { name: 'board-temperature', icon: '🌡️', description: 'Board Temperature' }
+    ];
+
+    // Build resource list
+    let resourceListHtml = `
+        <button onclick="showGraphTypeSelection()" style="margin-bottom: 15px; padding: 8px 15px; background: #ddd; border: none; border-radius: 5px; cursor: pointer;">← Kembali</button>
+        <h4 style="margin-bottom: 15px; color: #333;">Pilih System Resource:</h4>
+        <div class="interface-list">
+    `;
+    systemResources.forEach(resource => {
+        resourceListHtml += `
+            <div class="interface-item" onclick="selectInterface('${resource.name}', this)">
+                <span class="icon">${resource.icon}</span>
+                <span class="name">${escapeHtml(resource.name)}</span>
+                <span class="description">${escapeHtml(resource.description)}</span>
+            </div>
+        `;
+    });
+    resourceListHtml += '</div>';
+
+    modalBody.innerHTML = resourceListHtml;
+}
+
+// Go back to graph type selection
+function showGraphTypeSelection() {
+    selectedGraphType = null;
+    selectedInterface = null;
+
+    const modalBody = document.getElementById('interfaceModalBody');
+
+    const graphTypeHtml = `
+        <h4 style="margin-bottom: 15px; color: #333;">Pilih Tipe Graph:</h4>
+        <div class="interface-list">
+            <div class="interface-item" onclick="selectGraphType('traffic', this)">
+                <span class="icon">📊</span>
+                <span class="name">Traffic Graphing</span>
+                <span class="description">Graph traffic interface (upload/download)</span>
+            </div>
+            <div class="interface-item" onclick="selectGraphType('resource', this)">
+                <span class="icon">💻</span>
+                <span class="name">System Resource Graphing</span>
+                <span class="description">Graph CPU, memory, disk, temperature</span>
+            </div>
+        </div>
+    `;
+
+    modalBody.innerHTML = graphTypeHtml;
 }
 
 // Select interface from list
 function selectInterface(interfaceName, element) {
     selectedInterface = interfaceName;
 
-    // Clear custom input
-    document.getElementById('customInterface').value = '';
+    // Clear custom input if exists
+    const customInput = document.getElementById('customInterface');
+    if (customInput) {
+        customInput.value = '';
+    }
 
     // Remove selected class from all items
     document.querySelectorAll('.interface-item').forEach(item => {
@@ -249,13 +383,19 @@ function closeInterfaceModal() {
     const modal = document.getElementById('interfaceModal');
     modal.classList.remove('show');
     selectedRouterId = null;
+    selectedGraphType = null;
     selectedInterface = null;
 }
 
 // Confirm interface selection and open graph
 function confirmInterfaceSelection() {
     if (!selectedInterface) {
-        alert('Silakan pilih interface terlebih dahulu!');
+        alert('Silakan pilih interface/resource terlebih dahulu!');
+        return;
+    }
+
+    if (!selectedGraphType) {
+        alert('Silakan pilih tipe graph terlebih dahulu!');
         return;
     }
 
@@ -263,8 +403,17 @@ function confirmInterfaceSelection() {
     if (!router) return;
 
     const port = router.port ? `:${router.port}` : '';
-    const encodedInterface = encodeURIComponent(selectedInterface);
-    const graphUrl = `http://${router.ip}${port}/graphs/iface/${encodedInterface}/`;
+    let graphUrl;
+
+    if (selectedGraphType === 'traffic') {
+        // Traffic graph: /graphs/iface/{interface}/
+        const encodedInterface = encodeURIComponent(selectedInterface);
+        graphUrl = `http://${router.ip}${port}/graphs/iface/${encodedInterface}/`;
+    } else if (selectedGraphType === 'resource') {
+        // System resource graph: /graphs/resource/{resource}/
+        const encodedResource = encodeURIComponent(selectedInterface);
+        graphUrl = `http://${router.ip}${port}/graphs/resource/${encodedResource}/`;
+    }
 
     // Open graph in new tab
     window.open(graphUrl, '_blank');
@@ -360,13 +509,14 @@ async function syncToGoogleSheets() {
             router.ip,
             router.port || '80',
             router.interface || '',
+            router.interfaces ? router.interfaces.join(', ') : '',
             router.location || '',
             formatDate(router.addedAt),
             `http://${router.ip}${router.port ? ':' + router.port : ''}/graphs/`
         ]);
 
         // Add header row
-        const rows = [['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Lokasi', 'Ditambahkan', 'Link Graph'], ...data];
+        const rows = [['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Daftar Interface', 'Lokasi', 'Ditambahkan', 'Link Graph'], ...data];
 
         // Using Google Sheets API (requires API key)
         const response = await fetch(
@@ -417,13 +567,14 @@ async function syncToGoogleAppsScript() {
             router.ip,
             router.port || '80',
             router.interface || '',
+            router.interfaces ? router.interfaces.join(', ') : '',
             router.location || '',
             formatDate(router.addedAt),
             `http://${router.ip}${router.port ? ':' + router.port : ''}/graphs/`
         ]);
 
         // Add header row
-        const rows = [['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Lokasi', 'Ditambahkan', 'Link Graph'], ...data];
+        const rows = [['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Daftar Interface', 'Lokasi', 'Ditambahkan', 'Link Graph'], ...data];
 
         console.log('Sending data to Google Apps Script:', rows);
         console.log('Number of routers:', routers.length);
@@ -456,13 +607,14 @@ async function syncToGoogleAppsScript() {
 
 // Alternative: Export to CSV for manual import to Google Sheets
 function exportToCSV() {
-    const headers = ['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Lokasi', 'Ditambahkan', 'Link Graph'];
+    const headers = ['ID', 'Nama Router', 'IP Address', 'Port', 'Interface', 'Daftar Interface', 'Lokasi', 'Ditambahkan', 'Link Graph'];
     const rows = routers.map(router => [
         router.id,
         router.name,
         router.ip,
         router.port || '80',
         router.interface || '',
+        router.interfaces ? router.interfaces.join(', ') : '',
         router.location || '',
         formatDate(router.addedAt),
         `http://${router.ip}${router.port ? ':' + router.port : ''}/graphs/`

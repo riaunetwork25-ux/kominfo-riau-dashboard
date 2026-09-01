@@ -454,6 +454,11 @@
                 <input type="text" id="routerInterface" placeholder="Contoh: ether1-InternetKOMINFO">
             </div>
             <div class="form-group">
+                <label>Daftar Interface (opsional, pisahkan dengan koma):</label>
+                <input type="text" id="routerInterfaces" placeholder="Contoh: ether1, ether2, wlan1, bridge-local">
+                <small style="color: #999; font-size: 12px;">Daftar interface yang tersedia di router ini</small>
+            </div>
+            <div class="form-group">
                 <label>Lokasi:</label>
                 <input type="text" id="routerLocation" placeholder="Contoh: Kantor Kominfo Riau">
             </div>
@@ -473,7 +478,7 @@
     <div class="modal" id="interfaceModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Pilih Interface</h3>
+                <h3>Pilih Graph</h3>
                 <button class="close-btn" onclick="closeInterfaceModal()">&times;</button>
             </div>
             <div id="interfaceModalBody">
